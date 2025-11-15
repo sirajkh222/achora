@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Chat with Achora</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- General Setup & Body --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden; /* Prevent page scrolling */
+        }
+
+        body {
+            background: #e9ebee; /* Light grey background */
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        /* --- Main Chat Container --- */
+        .chat-container {
+            width: 100%;
+            max-width: 650px;
+            height: 90vh;
+            max-height: 800px;
+            background: #ffffff;
+            border-radius: 25px; /* Softer radius */
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- Chat Header --- */
+        .chat-header {
+            background: #11B3B1;
+            color: white;
+            padding: 20px 25px;
+            position: relative;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: nowrap;
+            min-height: 100px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-width: 0;
+            flex-wrap: nowrap;
+            margin-left: 40px;
+        }
+
+        .logo-and-title {
+            display: flex;
+            align-items: center;
+        }
+
+        .maple-logo {
+            width: 300px;
+            height: auto;
+        }
+
+        .header-title-group {
+            line-height: 1.3;
+        }
+
+            .header-title-group .main-title {
+                font-size: 24px;
+                font-weight: 700;
+                margin: 0;
+                letter-spacing: 2px;
+            }
+
+            .header-title-group .subtitle {
+                font-size: 14px;
+                font-weight: 400;
+                margin: 2px 0 0 0;
+                opacity: 0.95;
+            }
+
+        .header-tagline {
+            margin-left: 20px;
+            margin-right: 20px;
+            text-align: left;
+        }
+
+            .header-tagline .tagline {
+                font-size: 11px;
+                font-weight: 600;
+                margin: 0;
+                line-height: 1.2;
+            }
+
+        .status-indicator {
+            background: white;
+            border: 1px solid #11B3B1;
+            color: #11B3B1;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            min-width: fit-content;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+            .status-indicator.offline {
+                border: 1px solid #999;
+                color: #999;
+                flex-direction: column;
+                padding: 8px 12px;
+                white-space: normal;
+                text-align: center;
+                line-height: 1.3;
+            }
+
+            .status-indicator .dot {
+                width: 8px;
+                height: 8px;
+                background: #11B3B1;
+                border-radius: 50%;
+                transition: background 0.3s ease;
+                flex-shrink: 0;
+            }
+
+            .status-indicator.offline .dot {
+                background: #999;
+            }
+            
+            .status-indicator .status-text {
+                display: inline;
+            }
+            
+            .status-indicator.offline .status-text {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 2px;
+            }
+
+        /* --- Chat Messages Area --- */
+        .chat-messages {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background: #ffffff;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+            .message.user {
+                justify-content: flex-end;
+            }
+
+        .message-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+            .message-avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .message.bot .message-avatar {
+            background: #E8F7F7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .message.bot .message-avatar img {
+                width: 60%;
+                height: 60%;
+            }
+
+        .message.user {
+            justify-content: flex-end;
+            flex-direction: row;
+        }
+
+        .message-content {
+            max-width: 75%;
+            padding: 14px 18px;
+            border-radius: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            word-wrap: break-word;
+        }
+
+        /* Bot message style */
+        .message.bot .message-content {
+            background: #E8F7F7;
+            color: #003362;
+            border-bottom-left-radius: 6px;
+        }
+
+        /* User message style */
+        .message.user .message-content {
+            background: #916CB1;
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+
+        /* Formatting inside messages */
+        .message-content ul, .message-content ol {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+
+        .message-content li {
+            margin: 4px 0;
+        }
+
+        .message-content p {
+            margin: 8px 0;
+        }
+
+            .message-content p:first-child {
+                margin-top: 0;
+            }
+
+            .message-content p:last-child {
+                margin-bottom: 0;
+            }
+
+        /* Welcome Message & Badge */
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 8px 15px;
+            margin: 0 0 25px 0;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 25px;
+        }
+
+            .welcome-message h3 {
+                font-size: 20px;
+                color: #11B3B1;
+                margin-bottom: 5px;
+                font-weight: 600;
+            }
+
+            .welcome-message p {
+                font-size: 14px;
+                line-height: 1.3;
+                color: #333;
+                max-width: 90%;
+                margin: 0 auto 8px auto;
+                font-weight: 600;
+            }
+
+        .team-badge {
+            background: #003362;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+            letter-spacing: 0.5px;
+            margin-bottom: 0;
+        }
+
+        /* Quick Reply Buttons */
+        .quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0 20px 0;
+            padding-left: 60px;
+            max-width: calc(80% + 46px);
+            justify-content: flex-start;
+        }
+
+        .quick-reply-btn {
+            background: white;
+            border: 2px solid #333;
+            color: #333;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+            .quick-reply-btn:hover {
+                background: #f1f2f6;
+                border-color: #333;
+                color: #333;
+            }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: none;
+        }
+
+        /* Animated typing dots */
+        .typing-dots {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+            .typing-dots span {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background-color: #999;
+                display: inline-block;
+                animation: typing 1.4s infinite ease-in-out;
+            }
+
+                .typing-dots span:nth-child(1) {
+                    animation-delay: -0.32s;
+                }
+
+                .typing-dots span:nth-child(2) {
+                    animation-delay: -0.16s;
+                }
+
+                .typing-dots span:nth-child(3) {
+                    animation-delay: 0;
+                }
+
+        @keyframes typing {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Suggestion buttons for AI-initiated handoff */
+        .suggestion-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            justify-content: center;
+        }
+
+        .suggestion-buttons button {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            max-width: 110px;
+        }
+
+        .suggestion-buttons .accept-btn {
+            background: #11B3B1;
+            color: white;
+        }
+
+        .suggestion-buttons .accept-btn:hover {
+            background: #0D9290;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(17, 179, 177, 0.3);
+        }
+
+        .suggestion-buttons .callback-btn {
+            background: #FDC200;
+            color: #003362;
+            border: 1px solid #e6b000;
+        }
+
+        .suggestion-buttons .callback-btn:hover {
+            background: #e6b000;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(253, 194, 0, 0.3);
+        }
+
+        .suggestion-buttons .decline-btn {
+            background: #916CB1;
+            color: white;
+            border: 1px solid #7d5a9a;
+        }
+
+        .suggestion-buttons .decline-btn:hover {
+            background: #7d5a9a;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(145, 108, 177, 0.3);
+        }
+
+        /* --- Chat Input Area --- */
+        .chat-input-container {
+            padding: 20px 30px;
+            background: #e8e8e8;
+            border-top: 1px solid #f1f2f6;
+            flex-shrink: 0;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            align-items: center;
+            position: relative;
+            border: 2px solid #333;
+            border-radius: 35px;
+            padding: 8px 12px;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+
+            .chat-input-wrapper:focus-within {
+                border-color: #11B3B1;
+            }
+
+        .chat-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 12px 20px;
+            font-size: 14px;
+            outline: none;
+            color: #3d3d3d;
+        }
+
+            .chat-input::placeholder {
+                color: #666;
+                font-size: 14px;
+            }
+
+        /* Send button styling */
+        .send-button {
+            background: #11B3B1;
+            border: none;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 3px;
+            flex-shrink: 0;
+        }
+
+        .send-button:hover {
+            background: #0D9290;
+            transform: scale(1.05);
+        }
+
+        .send-button:active {
+            transform: scale(0.95);
+        }
+
+        .send-button svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+            transition: transform 0.2s ease;
+        }
+
+        .send-button:hover svg {
+            transform: translateX(2px);
+        }
+
+        .send-button:disabled {
+            background: #ddd;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .send-button:disabled:hover {
+            transform: none;
+            background: #ddd;
+        }
+
+        /* New "Talk to human" button style */
+        .human-connect-button {
+            background: #11B3B1;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+            .human-connect-button:hover:not(:disabled) {
+                filter: brightness(0.95);
+            }
+
+            .human-connect-button:disabled {
+                background: #ccc;
+                cursor: not-allowed;
+            }
+
+            .human-connect-button.connected {
+                background: #11B3B1;
+                color: white;
+            }
+
+                .human-connect-button.connected:hover {
+                    background: #0D9290;
+                }
+
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="header-left">
+                <div class="logo-and-title">
+                    <h1 style="font-size: 42px; font-weight: 700; color: white; margin: 0; letter-spacing: 3px;">achora</h1>
+                </div>
+            </div>
+            <div class="status-indicator" id="statusIndicator">
+                <span class="dot"></span>
+                <span class="status-text">Our team is online</span>
+            </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+
+            <div class="welcome-message">
+                <h3>Welcome to Achora!</h3>
+                <p id="welcomeText">Hi there! I'm here representing our caring Achora team. We're passionate about helping people with disabilities achieve their goals with warmth and genuine expertise.</p>
+                <div class="team-badge">24/7 Support • CALD friendly • Less than a week to response time</div>
+            </div>
+
+            <div class="message bot">
+                <div class="message-avatar">
+                    <img src="https://maplecommunity.com.au/wp-content/uploads/MCS-Icon-ChatBot.png" alt="Bot Avatar">
+                </div>
+                <div class="message-content">
+                    <p>Whether you're new to NDIS, considering switching providers, or just have questions, our diverse and caring team is here to support you every step of the way. What brings you to Achora today? ⭐</p>
+                </div>
+            </div>
+
+
+            <div class="typing-indicator message bot" id="typingIndicator">
+                <div class="message-avatar">
+                    <img src="https://maplecommunity.com.au/wp-content/uploads/MCS-Icon-ChatBot.png" alt="Bot Avatar">
+                </div>
+                <div class="message-content">
+                    <div class="typing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+                <input type="text" class="chat-input" id="messageInput" placeholder="We're here to make NDIS simpler, how can we help today?" maxlength="500" autocomplete="off">
+                <button class="send-button" id="sendButton" onclick="sendMessage()" aria-label="Send message">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const statusIndicator = document.getElementById('statusIndicator');
+
+        const WEBHOOK_URL = 'https://maplecommunity-api-production.up.railway.app/chat';
+        let sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        let persistentUserId = null; // Persistent user identifier across sessions
+        let isConnectedToHuman = false;
+        let humanConnectionState = 'disconnected';
+        let socket = null;
+        let conversationHistory = [];
+        let waitingStartTime = null;
+        let waitingTimerInterval = null;
+        let isRestoringFromStorage = false;
+
+        function formatWaitingTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            if (minutes > 0) {
+                return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }
+            return `${seconds} seconds`;
+        }
+
+        function startWaitingTimer() {
+            // Clear any existing timer
+            if (waitingTimerInterval) {
+                clearInterval(waitingTimerInterval);
+            }
+
+            // Add initial waiting message with timer
+            const timerDiv = document.createElement('div');
+            timerDiv.id = 'waiting-timer';
+            timerDiv.style.textAlign = 'center';
+            timerDiv.style.margin = '15px 0';
+            timerDiv.innerHTML = `
+                <div style="background:#e3f2fd; color:#1565c0; padding:12px 20px; border-radius:20px; border:1px solid #90caf9; font-size:14px; display:inline-block;">
+                    <span style="font-weight:600;">Waiting for Support Specialist...</span>
+                    <br>
+                    <span style="font-size:12px;">Waiting time: <span id="timer-display">0 seconds</span></span>
+                </div>
+            `;
+            chatMessages.insertBefore(timerDiv, typingIndicator);
+            scrollToBottom();
+
+            // Update timer every second
+            waitingTimerInterval = setInterval(() => {
+                if (waitingStartTime) {
+                    const elapsedSeconds = Math.floor((Date.now() - waitingStartTime) / 1000);
+                    const timerDisplay = document.getElementById('timer-display');
+                    if (timerDisplay) {
+                        timerDisplay.textContent = formatWaitingTime(elapsedSeconds);
+                    }
+                }
+            }, 1000);
+        }
+
+        function stopWaitingTimer() {
+            if (waitingTimerInterval) {
+                clearInterval(waitingTimerInterval);
+                waitingTimerInterval = null;
+            }
+            waitingStartTime = null;
+            
+            // Remove timer display
+            const timerDiv = document.getElementById('waiting-timer');
+            if (timerDiv) {
+                timerDiv.remove();
+            }
+        }
+
+        function isWithinWorkingHours() {
+            const now = new Date();
+            const australianTime = new Date(now.toLocaleString("en-US", {timeZone: "Australia/Sydney"}));
+            const hours = australianTime.getHours();
+            const day = australianTime.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+            // Check if it's a weekday (Monday to Friday) and within business hours
+            // Weekends (Saturday=6, Sunday=0) are always considered after hours
+            const isWeekday = day >= 1 && day <= 5;
+            const isBusinessTime = hours >= 9 && hours < 17;
+
+            return isWeekday && isBusinessTime;
+        }
+
+        function updateTeamStatus() {
+            const isOnline = isWithinWorkingHours();
+            const dot = statusIndicator.querySelector('.dot');
+            const statusText = statusIndicator.querySelector('.status-text');
+            const welcomeText = document.getElementById('welcomeText');
+            
+            if (isOnline) {
+                statusIndicator.style.display = 'flex';
+                statusIndicator.classList.remove('offline');
+                statusIndicator.style.borderColor = '#11B3B1';
+                statusIndicator.style.color = '#11B3B1';
+                dot.style.background = '#11B3B1';
+                dot.style.display = 'block';
+                statusText.innerHTML = 'Our team is online';
+                welcomeText.innerHTML = "Hi there! I'm here representing our caring Achora team. We're passionate about helping people with disabilities achieve their goals with warmth and genuine expertise.";
+            } else {
+                statusIndicator.style.display = 'none';
+                welcomeText.innerHTML = "Hi there 👋 I'm here on behalf of the Achora team to support you at any time. Our team isn't online right now, but we'd love to help. If you'd like to speak to a professional during opening hours, please leave your details here and we'll be in touch as soon as we're back. Otherwise, I am here to answer any questions you may have.";
+            }
+        }
+
+        function initializeWebSocket() {
+            console.log('🔌 Connecting to WebSocket...');
+            socket = io('https://maplecommunity-api-production.up.railway.app');
+            socket.on('connect', () => {
+                console.log('✅ WebSocket connected:', socket.id);
+                socket.emit('join_session', sessionId);
+            });
+            socket.on('disconnect', () => {
+                console.log('❌ WebSocket disconnected');
+            });
+            socket.on('agent_connected', (data) => {
+                console.log('👨‍💼 Agent connected:', data);
+                if (!isConnectedToHuman) {
+                    isConnectedToHuman = true;
+                    stopWaitingTimer(); // Stop the waiting timer
+                    addSystemMessage(data.message);
+                }
+            });
+            socket.on('agent_message', (data) => {
+                console.log('📨 Agent message:', data);
+                hideTyping();
+                addMessage(data.message, false, true);
+            });
+            socket.on('agent_disconnected', (data) => {
+                console.log('🔌 Agent disconnected:', data);
+                disconnectFromHuman();
+                stopWaitingTimer(); // Stop timer if disconnected
+                addSystemMessage(data.message);
+            });
+
+            socket.on('handoff_timeout', (data) => {
+                console.log('⏰ Handoff request timed out:', data);
+                // Hide any waiting UI elements
+                stopWaitingTimer();
+                hideHandoffButtons();
+                isWaitingForAgent = false;
+                // The system message will come through the regular 'message' event
+            });
+        }
+
+        function trackLinkClick(url) {
+            // Log link click to the database
+            fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: `Link clicked: ${url}`,
+                    sessionId: sessionId,
+                    persistentUserId: persistentUserId, // Include persistent user ID
+                    type: 'link_click',
+                    metadata: { 
+                        clickedUrl: url, 
+                        eventType: 'link_click'
+                    }
+                })
+            }).catch(error => {
+                console.error('Error tracking link click:', error);
+            });
+        }
+
+        function formatBotResponse(text) {
+            // Convert URLs to clickable links first with onclick tracking
+            text = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" onclick="trackLinkClick(\'$1\')" style="color: #11B3B1; text-decoration: underline;">$1</a>');
+            
+            // Then handle markdown formatting
+            text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            let lines = text.split('\n');
+            let formattedLines = [];
+            let inList = false;
+            let listType = '';
+
+            for (let line of lines) {
+                let isOrdered = /^\d+\.\s/.test(line);
+                let isUnordered = /^[-•]\s/.test(line);
+
+                if (isOrdered || isUnordered) {
+                    if (!inList) {
+                        listType = isOrdered ? 'ol' : 'ul';
+                        formattedLines.push(`<${listType}>`);
+                        inList = true;
+                    }
+                    formattedLines.push('<li>' + line.replace(/^\d+\.\s|^[-•]\s/, '') + '</li>');
+                } else {
+                    if (inList) {
+                        formattedLines.push(`</${listType}>`);
+                        inList = false;
+                    }
+                    if (line.trim()) formattedLines.push('<p>' + line + '</p>');
+                }
+            }
+            if (inList) formattedLines.push(`</${listType}>`);
+            return formattedLines.join('');
+        }
+
+        function addMessage(text, isUser = false, isHuman = false, saveToStorage = true) {
+            const messageObj = {
+                sender: isUser ? 'user' : (isHuman ? 'human' : 'bot'),
+                message: text,
+                timestamp: new Date().toISOString()
+            };
+            
+            conversationHistory.push(messageObj);
+            
+            // Keep only last 20 messages for better persistence
+            if (conversationHistory.length > 20) {
+                conversationHistory = conversationHistory.slice(-20);
+            }
+            
+            // Save to localStorage unless we're restoring from storage
+            if (saveToStorage) {
+                saveChatHistory();
+            }
+            
+            
+            const messageType = isUser ? 'user' : 'bot';
+
+            const avatarImgSrc = 'https://maplecommunity.com.au/wp-content/uploads/MCS-Icon-ChatBot.png';
+            const avatarAlt = 'Bot Avatar';
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${messageType}`;
+
+            if (!isUser) {
+                const avatarDiv = document.createElement('div');
+                avatarDiv.className = 'message-avatar';
+                avatarDiv.innerHTML = `<img src="${avatarImgSrc}" alt="${avatarAlt}">`;
+                messageDiv.appendChild(avatarDiv);
+            }
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            contentDiv.innerHTML = isUser ? `<p>${text}</p>` : formatBotResponse(text);
+
+            messageDiv.appendChild(contentDiv);
+
+            chatMessages.insertBefore(messageDiv, typingIndicator);
+            scrollToBottom();
+        }
+
+        function addSystemMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.style.textAlign = 'center';
+            messageDiv.style.margin = '10px 0';
+            messageDiv.innerHTML = `<span style="background:#fff3cd; color:#856404; padding:8px 12px; border-radius:15px; border:1px solid #ffeaa7; font-size:12px; font-style:italic;">${text}</span>`;
+            chatMessages.insertBefore(messageDiv, typingIndicator);
+            scrollToBottom();
+        }
+
+        function addHandoffSuggestion() {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot';
+
+            const isOnline = isWithinWorkingHours();
+            const finalSuggestion = "It seems like you might benefit from speaking with someone from our team. Would you like me to connect you with a Support Specialist?";
+            
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'message-avatar';
+            avatarDiv.innerHTML = `<img src="https://maplecommunity.com.au/wp-content/uploads/MCS-Icon-ChatBot.png" alt="Bot Avatar">`;
+            messageDiv.appendChild(avatarDiv);
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            if (isOnline) {
+                contentDiv.innerHTML = `
+                    <p>${finalSuggestion}</p>
+                    <div class="suggestion-buttons">
+                        <button class="accept-btn" onclick="handleHandoffResponse('accept')">Accept</button>
+                        <button class="callback-btn" onclick="handleHandoffResponse('callback')">Request Call Back</button>
+                        <button class="decline-btn" onclick="handleHandoffResponse('decline')">Continue Chat</button>
+                    </div>
+                `;
+            } else {
+                contentDiv.innerHTML = `
+                    <p>${finalSuggestion}</p>
+                    <div class="suggestion-buttons">
+                        <button class="accept-btn" onclick="handleHandoffResponse('callback')">Request Callback</button>
+                        <button class="decline-btn" onclick="handleHandoffResponse('decline')">Continue Chat</button>
+                    </div>
+                `;
+            }
+            messageDiv.appendChild(contentDiv);
+
+            chatMessages.insertBefore(messageDiv, typingIndicator);
+            scrollToBottom();
+        }
+
+        async function handleHandoffResponse(response) {
+            const suggestionButtons = document.querySelectorAll('.suggestion-buttons');
+            suggestionButtons.forEach(button => button.remove());
+
+            if (response === 'accept') {
+                try {
+                    const apiResponse = await fetch(WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message: 'User accepted human handoff',
+                            sessionId: sessionId,
+                            persistentUserId: persistentUserId, // Include persistent user ID
+                            type: 'accept_human_handoff',
+                            conversationHistory: conversationHistory
+                        })
+                    });
+                    if (!apiResponse.ok) throw new Error(`HTTP error! status: ${apiResponse.status}`);
+                    
+                    // Start the waiting timer
+                    waitingStartTime = Date.now();
+                    startWaitingTimer();
+                    
+                    const responseData = await apiResponse.json();
+                    if (responseData.type === 'human_requested') {
+                        // Additional handling if needed
+                    }
+                } catch (error) {
+                    console.error('Error accepting human handoff:', error);
+                    addSystemMessage("Sorry, we couldn't connect you right now. Please try again.");
+                }
+            } else if (response === 'callback') {
+                const callbackMessage = "I would like to request a callback. Can you please help me schedule a call?";
+                addMessage(callbackMessage, true);
+                
+                showTyping();
+                
+                try {
+                    const callbackResponse = await fetch(WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message: callbackMessage,
+                            sessionId: sessionId,
+                            persistentUserId: persistentUserId, // Include persistent user ID
+                            type: 'user_to_bot',
+                            isHumanConnected: false
+                        })
+                    });
+                    
+                    if (!callbackResponse.ok) throw new Error(`HTTP error! status: ${callbackResponse.status}`);
+                    
+                    const responseData = await callbackResponse.json();
+                    const botMessage = extractBotResponse(responseData);
+                    
+                    hideTyping();
+                    addMessage(botMessage, false);
+                    
+                } catch (error) {
+                    console.error('Error requesting callback:', error);
+                    hideTyping();
+                    addMessage("I apologize, but I'm having trouble processing your callback request. Please try again or call us directly.", false);
+                }
+            } else {
+                const isOnlineNow = isWithinWorkingHours();
+                try {
+                    const response = await fetch(WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message: 'User declined human handoff',
+                            sessionId: sessionId,
+                            persistentUserId: persistentUserId, // Include persistent user ID
+                            type: 'decline_human_handoff',
+                            isHumanConnected: false,
+                            isBusinessHours: isOnlineNow
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const responseData = await response.json();
+                        const botMessage = extractBotResponse(responseData);
+                        addMessage(botMessage, false);
+                    }
+                } catch (error) {
+                    console.error('Error processing decline:', error);
+                    addMessage("No worries! I'll continue to help you. What else can I assist you with today?", false);
+                }
+                
+                // Track continue conversation event when user declines handoff
+                trackEvent('CONTINUE_PRESSED');
+            }
+        }
+
+        function disconnectFromHuman() {
+            isConnectedToHuman = false;
+        }
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTyping() {
+            typingIndicator.style.display = 'flex';
+            scrollToBottom();
+        }
+
+        function hideTyping() {
+            typingIndicator.style.display = 'none';
+        }
+
+        function extractBotResponse(responseData) {
+            if (typeof responseData === 'string') return responseData;
+            return responseData.output || responseData.response || responseData.message || responseData.text || "Sorry, I encountered an issue. Please try again.";
+        }
+
+        async function trackEvent(eventType) {
+            try {
+                await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: `TRACK_EVENT_${eventType}`,
+                        sessionId: sessionId,
+                        persistentUserId: persistentUserId, // Include persistent user ID
+                        type: 'track_event',
+                        eventType: eventType
+                    })
+                });
+            } catch (error) {
+                console.log('Event tracking failed:', error);
+            }
+        }
+
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            // Disable input while waiting for response
+            messageInput.disabled = true;
+            document.getElementById('sendButton').disabled = true;
+
+            addMessage(message, true);
+            messageInput.value = '';
+
+            if (!isConnectedToHuman) {
+                showTyping();
+            }
+
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: message,
+                        sessionId: sessionId,
+                        persistentUserId: persistentUserId, // Include persistent user ID
+                        type: isConnectedToHuman ? 'user_to_human' : 'user_to_bot',
+                        isHumanConnected: isConnectedToHuman
+                    })
+                });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const responseData = await response.json();
+                hideTyping();
+
+                if (!isConnectedToHuman) {
+                    if (responseData.type === 'human_handoff_suggestion') {
+                        addMessage(responseData.output, false);
+                        addHandoffSuggestion();
+                    } else {
+                        const botMessage = extractBotResponse(responseData);
+                        addMessage(botMessage, false);
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                hideTyping();
+                addMessage('I apologize - I seem to be having a connection issue. Please try again or feel free to call our team directly.', false);
+            } finally {
+                // Re-enable input after response (success or error)
+                messageInput.disabled = false;
+                document.getElementById('sendButton').disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        function askQuestion(question) {
+            messageInput.value = question;
+            sendMessage();
+        }
+
+        messageInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Initialize persistent user ID and restore chat history
+        initializePersistentUserId();
+        restoreChatHistory();
+        
+        // Track widget opening
+        trackEvent('WIDGET_OPENED');
+        
+        initializeWebSocket();
+        updateTeamStatus();
+        setInterval(updateTeamStatus, 60000);
+        
+        function initializePersistentUserId() {
+            try {
+                // Try to get existing persistent user ID
+                persistentUserId = localStorage.getItem('achora_persistent_user_id');
+                
+                if (!persistentUserId) {
+                    // Generate new persistent user ID
+                    persistentUserId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    localStorage.setItem('achora_persistent_user_id', persistentUserId);
+                    console.log('🍁 Generated new persistent user ID:', persistentUserId);
+                } else {
+                    console.log('🍁 Restored persistent user ID:', persistentUserId);
+                }
+            } catch (error) {
+                console.error('Error initializing persistent user ID:', error);
+                // Fallback: use sessionId as persistent ID
+                persistentUserId = sessionId;
+            }
+        }
+        
+        function restoreChatHistory() {
+            try {
+                const storedData = localStorage.getItem(`achora_chat_history_${persistentUserId}`);
+                if (storedData) {
+                    const data = JSON.parse(storedData);
+                    const now = Date.now();
+                    const oneDayMs = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+                    
+                    // Check if data is expired (older than 24 hours)
+                    if (data.timestamp && (now - data.timestamp) > oneDayMs) {
+                        console.log('🍁 Chat history expired (older than 24 hours), clearing...');
+                        localStorage.removeItem(`achora_chat_history_${persistentUserId}`);
+                        return; // Don't restore expired data
+                    }
+                    
+                    const parsedHistory = data.messages || data; // Support both new and legacy formats
+                    if (Array.isArray(parsedHistory) && parsedHistory.length > 0) {
+                        isRestoringFromStorage = true;
+                        console.log('🍁 Restoring chat history:', parsedHistory.length, 'messages');
+                        
+                        // Clear existing messages except welcome message and typing indicator
+                        const existingMessages = chatMessages.querySelectorAll('.message:not(.typing-indicator)');
+                        existingMessages.forEach(msg => {
+                            if (!msg.querySelector('.welcome-message')) {
+                                msg.remove();
+                            }
+                        });
+                        
+                        // Restore messages
+                        parsedHistory.forEach(msg => {
+                            addMessage(msg.message, msg.sender === 'user', msg.sender === 'human', false); // false = don't save to localStorage
+                        });
+                        
+                        conversationHistory = [...parsedHistory];
+                        isRestoringFromStorage = false;
+                        scrollToBottom();
+                    }
+                }
+            } catch (error) {
+                console.error('Error restoring chat history:', error);
+                isRestoringFromStorage = false;
+            }
+        }
+        
+        function saveChatHistory() {
+            if (isRestoringFromStorage || !persistentUserId) return;
+
+            try {
+                // Save with timestamp for 24-hour expiration
+                const dataToSave = {
+                    timestamp: Date.now(),
+                    messages: conversationHistory
+                };
+                localStorage.setItem(`achora_chat_history_${persistentUserId}`, JSON.stringify(dataToSave));
+            } catch (error) {
+                console.error('Error saving chat history:', error);
+            }
+        }
+
+        // Ensure chat history is saved before any page navigation
+        window.addEventListener('beforeunload', function() {
+            saveChatHistory();
+        });
+    </script>
+</body>
+</html>

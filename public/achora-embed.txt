@@ -1,0 +1,350 @@
+(function() {
+    'use strict';
+    
+    // Prevent multiple instances
+    if (window.mapleChat) return;
+    window.mapleChat = true;
+    
+    // Device detection function
+    function isMobileDevice() {
+        // Check user agent
+        const mobileUserAgents = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
+        const isMobileUA = mobileUserAgents.test(navigator.userAgent);
+        
+        // Check screen size as backup
+        const isSmallScreen = window.innerWidth <= 768;
+        
+        // Check for touch capability
+        const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        
+        // Return true if any mobile indicator is present
+        return isMobileUA || (isSmallScreen && isTouchDevice);
+    }
+    
+    // Configuration - dynamically choose URL based on device
+    const config = {
+        chatUrl: isMobileDevice() 
+            ? 'https://bot.maplecommunity.com.au/wp-content/uploads/2025/11/chatbot-widget-mobile.html'  // Your mobile version
+            : 'https://bot.maplecommunity.com.au/wp-content/uploads/2025/11/chatbot-widget.html',        // Your desktop version
+        position: 'bottom-right',
+        buttonSize: '60px',
+        chatWidth: '650px',
+        chatHeight: '800px'
+    };
+    
+    // Create styles
+    const styles = `
+        .maple-chat-widget {
+            position: fixed !important;
+            bottom: 20px !important;
+            right: 20px !important;
+            z-index: 999999 !important;
+            font-family: 'Montserrat', sans-serif !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+        }
+        
+        .maple-chat-tooltip {
+            background: linear-gradient(135deg, #11B3B1, #0D9290) !important;
+            color: white !important;
+            padding: 8px 12px !important;
+            border-radius: 20px !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            margin-bottom: 10px !important;
+            box-shadow: 0 4px 12px rgba(17, 179, 177, 0.3) !important;
+            border: none !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+        }
+
+        .maple-chat-button {
+            width: ${config.buttonSize} !important;
+            height: ${config.buttonSize} !important;
+            background: #11B3B1 !important;
+            border: none !important;
+            border-radius: 50% !important;
+            cursor: pointer !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 28px !important;
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+            transition: all 0.3s ease !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .maple-chat-button:hover {
+            transform: scale(1.05) !important;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2) !important;
+        }
+
+        .maple-chat-button.active {
+            background: #003362 !important;
+        }
+        
+        .maple-chat-frame {
+            position: fixed !important;
+            bottom: 90px !important;
+            right: 20px !important;
+            width: ${config.chatWidth} !important;
+            height: ${config.chatHeight} !important;
+            max-width: 90vw !important;
+            max-height: 85vh !important;
+            display: none !important;
+            border-radius: 25px !important;
+            overflow: hidden !important;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12) !important;
+            background: white !important;
+            border: none !important;
+        }
+        
+        .maple-chat-frame.open {
+            display: block !important;
+            animation: mapleSlideUp 0.3s ease !important;
+        }
+        
+        .maple-chat-iframe {
+            width: 100% !important;
+            height: 100% !important;
+            border: none !important;
+            background: white !important;
+            border-radius: 25px !important;
+        }
+        
+        @keyframes mapleSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Mobile responsive - use ONLY touch/pointer detection, NO width breakpoints */
+        @media (pointer: coarse), (hover: none) {
+            .maple-chat-frame {
+                width: 100vw !important;
+                height: 100vh !important;
+                bottom: 0 !important;
+                right: 0 !important;
+                left: 0 !important;
+                top: 0 !important;
+                border-radius: 0 !important;
+                max-width: 100vw !important;
+                max-height: 100vh !important;
+                position: fixed !important;
+            }
+            
+            .maple-chat-widget {
+                bottom: 15px !important;
+                right: 15px !important;
+            }
+            
+            .maple-chat-button {
+                width: 56px !important;
+                height: 56px !important;
+                font-size: 24px !important;
+            }
+        }
+    `;
+    
+    // Inject styles
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = styles;
+    document.head.appendChild(styleSheet);
+    
+    // Create widget HTML
+    const widgetHTML = `
+        <div class="maple-chat-widget">
+            <div class="maple-chat-tooltip" id="mapleChatTooltip">
+                Need Support?
+            </div>
+            <button class="maple-chat-button" id="mapleChatButton" aria-label="Open chat support">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="white">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                </svg>
+            </button>
+            <div class="maple-chat-frame" id="mapleChatFrame">
+                <iframe class="maple-chat-iframe" src="${config.chatUrl}" title="Achora Chat"></iframe>
+            </div>
+        </div>
+    `;
+    
+    // Wait for DOM to be ready
+    function init() {
+        // Log which version is being loaded for debugging
+        console.log('🔵 Achora Chat Widget - Loading:', isMobileDevice() ? 'Mobile' : 'Desktop', 'version');
+        
+        // Create container
+        const container = document.createElement('div');
+        container.innerHTML = widgetHTML;
+        document.body.appendChild(container);
+        
+        // Get elements
+        const button = document.getElementById('mapleChatButton');
+        const frame = document.getElementById('mapleChatFrame');
+        const tooltip = document.getElementById('mapleChatTooltip');
+        let isOpen = false;
+        let sessionId = null;
+        let persistentUserId = null;
+        
+        // Initialize persistent user ID
+        function initializePersistentUserId() {
+            try {
+                // Try to get existing persistent user ID
+                persistentUserId = localStorage.getItem('achora_persistent_user_id');
+                
+                if (!persistentUserId) {
+                    // Generate new persistent user ID
+                    persistentUserId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    localStorage.setItem('achora_persistent_user_id', persistentUserId);
+                    console.log('🔵 Achora Chat: Generated new persistent user ID:', persistentUserId);
+                } else {
+                    console.log('🔵 Achora Chat: Restored persistent user ID:', persistentUserId);
+                }
+            } catch (error) {
+                console.error('Error initializing persistent user ID:', error);
+                // Fallback: generate temporary ID
+                persistentUserId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+        }
+        
+        // Generate session ID (used for WebSocket connection)
+        function generateSessionId() {
+            return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        // Track widget opened event
+        function trackWidgetOpened(sessionId, persistentUserId) {
+            fetch('https://maplecommunity-api-production.up.railway.app/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: 'TRACK_EVENT_WIDGET_OPENED',
+                    sessionId: sessionId,
+                    persistentUserId: persistentUserId, // Include persistent user ID
+                    type: 'track_event',
+                    eventType: 'WIDGET_OPENED'
+                })
+            }).catch(error => console.log('Event tracking failed:', error));
+        }
+        
+        // Button click handler
+        button.addEventListener('click', function() {
+            isOpen = !isOpen;
+            
+            if (isOpen) {
+                // Initialize persistent user ID on first open
+                if (!persistentUserId) {
+                    initializePersistentUserId();
+                }
+                
+                // Generate session only when widget is first opened
+                if (!sessionId) {
+                    sessionId = generateSessionId();
+                    trackWidgetOpened(sessionId, persistentUserId);
+                    
+                    // Send both session ID and persistent user ID to iframe
+                    const iframe = document.querySelector('.maple-chat-iframe');
+                    if (iframe) {
+                        const messageData = {
+                            type: 'achora-session-id',
+                            sessionId: sessionId,
+                            persistentUserId: persistentUserId
+                        };
+                        
+                        iframe.onload = function() {
+                            iframe.contentWindow.postMessage(messageData, '*');
+                        };
+                        // If iframe already loaded, send immediately
+                        if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+                            iframe.contentWindow.postMessage(messageData, '*');
+                        }
+                    }
+                }
+                
+                frame.classList.add('open');
+                button.classList.add('active');
+                tooltip.style.display = 'none'; // Hide tooltip when chat opens
+                button.innerHTML = `<svg width="30" height="30" viewBox="0 0 24 24" fill="white">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                </svg>`;
+                button.setAttribute('aria-label', 'Close chat');
+            } else {
+                frame.classList.remove('open');
+                button.classList.remove('active');
+                tooltip.style.display = 'block'; // Show tooltip when chat closes
+                button.innerHTML = `<svg width="30" height="30" viewBox="0 0 24 24" fill="white">
+                    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+                </svg>`;
+                button.setAttribute('aria-label', 'Open chat support');
+            }
+        });
+        
+        // Handle escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && isOpen) {
+                button.click();
+            }
+        });
+        
+        // Listen for messages from iframe
+        window.addEventListener('message', function(event) {
+            if (event.data === 'closeMobileChat' || (event.data && event.data.type === 'maple-chat-close')) {
+                if (isOpen) button.click();
+            }
+        });
+
+        // Handle window resize - reload iframe if device type changes
+        let currentDeviceType = isMobileDevice();
+        window.addEventListener('resize', function() {
+            const newDeviceType = isMobileDevice();
+            if (newDeviceType !== currentDeviceType) {
+                currentDeviceType = newDeviceType;
+                const iframe = document.querySelector('.maple-chat-iframe');
+                if (iframe) {
+                    const newUrl = newDeviceType
+                        ? 'https://bot.maplecommunity.com.au/wp-content/uploads/2025/11/chatbot-widget-mobile.html'
+                        : 'https://bot.maplecommunity.com.au/wp-content/uploads/2025/11/chatbot-widget.html';
+                    iframe.src = newUrl;
+                    console.log('🔵 Achora Chat Widget - Switched to:', newDeviceType ? 'Mobile' : 'Desktop', 'version');
+                }
+            }
+        });
+
+        // Auto-open widget if user clicked a link in the chatbot on previous page
+        try {
+            const autoOpenFlag = localStorage.getItem('achora_auto_open_widget');
+            if (autoOpenFlag === 'true') {
+                console.log('🔵 Auto-opening widget from link click');
+                // Clear the flag immediately
+                localStorage.removeItem('achora_auto_open_widget');
+                // Auto-open the widget after a short delay to ensure everything is loaded
+                setTimeout(function() {
+                    if (!isOpen) {
+                        button.click();
+                    }
+                }, 500);
+            }
+        } catch (error) {
+            console.error('Error checking auto-open flag:', error);
+        }
+
+        console.log('🔵 Achora Chat Widget loaded successfully');
+    }
+    
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();

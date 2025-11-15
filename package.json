@@ -1,0 +1,32 @@
+{
+    "name": "achora-chatbot",
+    "version": "1.0.0",
+    "description": "Achora NDIS Chatbot",
+    "license": "ISC",
+    "author": "Siraj Khan",
+    "type": "commonjs",
+    "main": "src/app.js",
+    "scripts": {
+        "start": "node src/app.js",
+        "clear-redis": "node clear-redis.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "@pinecone-database/pinecone": "^6.1.2",
+        "@slack/bolt": "^4.4.0",
+        "@slack/web-api": "^7.9.3",
+        "axios": "^1.11.0",
+        "cors": "^2.8.5",
+        "date-fns": "^4.1.0",
+        "date-fns-tz": "^3.2.0",
+        "dotenv": "^17.2.1",
+        "express": "^5.1.0",
+        "express-rate-limit": "^8.0.1",
+        "openai": "^5.12.2",
+        "pg": "^8.16.3",
+        "redis": "^5.8.2",
+        "sequelize": "^6.37.7",
+        "socket.io": "^4.8.1",
+        "winston": "^3.17.0"
+    }
+}
