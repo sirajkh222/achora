@@ -644,7 +644,7 @@
         const statusIndicator = document.getElementById('statusIndicator');
         const connectionStatus = document.getElementById('connectionStatus');
 
-        const WEBHOOK_URL = 'https://maplecommunity-api-test.up.railway.app/chat';
+        const WEBHOOK_URL = 'https://achora-production.up.railway.app/chat';
         let sessionId = null; // Will be created when widget is first opened
         let persistentUserId = null; // Persistent user identifier across sessions
         let isConnectedToHuman = false;
@@ -1018,7 +1018,7 @@
         function initializeWebSocket() {
             try {
                 console.log('🔌 Connecting to WebSocket...');
-                socket = io('https://maplecommunity-api-test.up.railway.app', {
+                socket = io('https://achora-production.up.railway.app', {
                     timeout: 10000,
                     forceNew: true
                 });

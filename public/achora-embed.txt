@@ -224,7 +224,7 @@
         
         // Track widget opened event
         function trackWidgetOpened(sessionId, persistentUserId) {
-            fetch('https://maplecommunity-api-production.up.railway.app/chat', {
+            fetch('https://achora-production.up.railway.app/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

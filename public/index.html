@@ -612,7 +612,7 @@
         const typingIndicator = document.getElementById('typingIndicator');
         const statusIndicator = document.getElementById('statusIndicator');
 
-        const WEBHOOK_URL = 'https://maplecommunity-api-production.up.railway.app/chat';
+        const WEBHOOK_URL = 'https://achora-production.up.railway.app/chat';
         let sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         let persistentUserId = null; // Persistent user identifier across sessions
         let isConnectedToHuman = false;
@@ -716,7 +716,7 @@
 
         function initializeWebSocket() {
             console.log('🔌 Connecting to WebSocket...');
-            socket = io('https://maplecommunity-api-production.up.railway.app');
+            socket = io('https://achora-production.up.railway.app');
             socket.on('connect', () => {
                 console.log('✅ WebSocket connected:', socket.id);
                 socket.emit('join_session', sessionId);
